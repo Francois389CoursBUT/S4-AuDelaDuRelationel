@@ -21,5 +21,16 @@ public abstract class Utilisateur  {
 
     public String getMotDePasse() {
         return motDePasse;
-    }    
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Utilisateur{");
+        sb.append("nom='").append(nom).append('\'');
+        sb.append(", prenom='").append(prenom).append('\'');
+        sb.append(", _id='").append(_id).append('\'');
+        sb.append(", motDePasse='").append(motDePasse).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

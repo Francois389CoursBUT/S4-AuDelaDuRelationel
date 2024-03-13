@@ -76,4 +76,11 @@ public class Etudiant extends Utilisateur  {
         }
         return result;
     }
+
+    @Override
+    public String toString() {
+        return super.toString().substring(0, super.toString().length() - 1) +
+                ", notes=" + notesToString() +
+                '}';
+    }
 }

@@ -169,7 +169,10 @@ public class IhmGestionNotes extends javax.swing.JFrame {
             // 1. Attendre si nécessaire que le verrou sur l'application soit levé.
             if (GestionVerrou.verrouFerme()) {
                 System.out.println("Application en cours d'utilisation. Attendez...");
-                while (GestionVerrou.verrouFerme()) ;
+                //while (GestionVerrou.verrouFerme()) {
+                    //On attend
+                //}
+                System.out.println("On ferme le verrou");
             }
             // 2. Le verrouillage étant levé, verrouiller et charger les données
             GestionVerrou.verrouiller();

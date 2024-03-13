@@ -15,7 +15,7 @@ public class ConnexionBD {
     
     private final static String IP_SERVEUR_MONGODB = "localhost";
     private final static int PORT_SERVEUR_MONGODB = 27017 ;
-    private final static String BD_APPLICATION ="BdGestionNotes";
+    private final static String BD_APPLICATION ="gestion_note";
     private static MongoDatabase mongoDb;
     
     /**

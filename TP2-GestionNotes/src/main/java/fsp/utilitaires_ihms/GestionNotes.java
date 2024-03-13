@@ -1,5 +1,6 @@
 package fsp.utilitaires_ihms;
 
+import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import fsp.donnees.Enseignant;
@@ -7,9 +8,12 @@ import fsp.donnees.Etudiant;
 import fsp.donnees.Matiere;
 import fsp.donnees.Utilisateur;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class GestionNotes {
 
@@ -18,7 +22,7 @@ public class GestionNotes {
 
     /**
      * Effectue les traitements suivants :
-     * 1. Utilise ConnxionBD pour obtenir une session de connexion à la base de données.
+     * 1. Utilise ConnexionBD pour obtenir une session de connexion à la base de données.
      * 2. Recherche tous les documents représentant les enseignants avec les matières qui leur sont
      * associés, les traduit en document Json puis en objets instances de la classe Enseignant avant
      * de les mémoriser dans la liste des utilisateurEnregistres.
@@ -30,10 +34,33 @@ public class GestionNotes {
      */
     public static void chargerDonnees() throws Exception {
         // TODO
-        // 1
+        // On récupère la base de données
         MongoDatabase mongoDb = ConnexionBD.getMongoBd();
 
-        // 2
+        // On récupère la collection des enseignants
+        MongoCollection<Document> tableEnseignant = mongoDb.getCollection("enseignants");
+        Gson gson = new Gson();
+        for (Document enseignantDoc : tableEnseignant.find()) {
+            Enseignant enseignantGenere = gson.fromJson(enseignantDoc.toJson(), Enseignant.class);
+            utilisateurs.add(enseignantGenere);
+        }
+
+        // On récupère la collection des étudiants
+        MongoCollection<Document> tableEtudiant = mongoDb.getCollection("etudiants");
+        for (Document etudiantDoc : tableEtudiant.find()) {
+            Etudiant etudiantGenere = gson.fromJson(etudiantDoc.toJson(), Etudiant.class);
+            utilisateurs.add(etudiantGenere);
+        }
+
+        // On récupère la collection des matières
+        MongoCollection<Document> tableMatiere = mongoDb.getCollection("matieres");
+        for (Document matiereDoc : tableMatiere.find()) {
+            Matiere matiereGenere = gson.fromJson(matiereDoc.toJson(), Matiere.class);
+            matieres.add(matiereGenere);
+        }
+
+        System.out.println("Données chargées");
+        System.out.println(utilisateurs);
 
     }
 
@@ -94,22 +121,16 @@ public class GestionNotes {
                                    float valeur) throws Exception {
         if (0 <= valeur && valeur <= 20) {
             MongoCollection<Document> tableEtudiant = ConnexionBD.getMongoBd().getCollection("etudiants");
-            Document etudiantDoc = tableEtudiant.find(new Document("id", etudiant.getId())).first();
-            boolean noteExist = false;
-            if (etudiantDoc != null) {
-                List<Document> notes = (List<Document>) etudiantDoc.get("notes");
-                if (notes != null) {
-                    for (Document note : notes) {
-                        if (note.getString("idMatiere").equals(idMatiere)) {
-                            noteExist = true;
-                        }
-                    }
-                }
-                if (!noteExist) {
-                    Document note = new Document("idMatiere", idMatiere).append("valeur", valeur);
-                    tableEtudiant.updateOne(new Document("id", etudiant.getId()), new Document("$push", new Document("notes", note)));
-                }
-            }
+            Bson filtre = eq("id", etudiant.getId());
+
+            // AJouter une note avec cette requete
+            // Documen de mise à jour {$set:{notes:[{"matiere":"Mathématiques", "valeur":15}]}})
+            Document note = new Document().append("matiere", idMatiere).append("valeur", valeur);
+            Document update = new Document().append("$push", new Document().append("notes", note));
+
+            tableEtudiant.updateOne(filtre, update);
+
+            etudiant.ajouterNote(idMatiere, valeur);
         }
     }
 

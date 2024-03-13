@@ -190,7 +190,7 @@ public class IhmEnseignant extends javax.swing.JFrame {
         if(txtNote.getText().isEmpty()) 
             JOptionPane.showMessageDialog(this, 
                     "Saisir une note !");
-        else if (comboMatiere.getSelectedIndex()>=0     // Une matière sélectionné
+        else if (comboMatiere.getSelectedIndex()>=0     // Une matière sélectionnée
           && comboEtudiant.getSelectedIndex()>=0)  // et un étudiant sélectionné
         {
             // 1. Récupérer l'id de la matière sélectionnée
@@ -198,21 +198,26 @@ public class IhmEnseignant extends javax.swing.JFrame {
             String idMatiere = (String) comboMatiere.getSelectedItem();
             Etudiant etudiant = etudiantsInscrits
                     .get(comboEtudiant.getSelectedIndex());
+            System.out.println("On tente d'ajouter la note "+txtNote.getText() + " à l'étudiant "+etudiant.getNom() + " dans la matière "+idMatiere);
             // 2. Ajouter ou modifier la note si elle est correctement saisie
             try {
-                Float note = Float.valueOf(txtNote.getText());
+                float note = Float.parseFloat(txtNote.getText());
                 if (note >= 0 && note <= 20) {
                     if(etudiant.note(idMatiere)== -1) { // Cas note absente, on l'ajoute
+                        System.out.println("On rajoute la note");
                         GestionNotes.ajouterNote(etudiant,idMatiere,note); 
                     }
                     else { // Cas note existante, on la modifie
+                        System.out.println("On modifie la note");
                         GestionNotes.modifierNote(etudiant,idMatiere, note);
                     }
                 }
-                else JOptionPane.showMessageDialog(this, "Note mal saisie !");               
+                else {
+                    JOptionPane.showMessageDialog(this, "Note mal saisie !");
+                }
             }
             catch(NumberFormatException ex1) {
-                JOptionPane.showMessageDialog(this, "Note mal saisie !");
+                JOptionPane.showMessageDialog(this, "La note doit être un nombre !");
             }
             catch(Exception ex2) {
                 JOptionPane.showMessageDialog(this,ex2.getMessage());
